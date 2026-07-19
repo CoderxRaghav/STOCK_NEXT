@@ -63,9 +63,11 @@ export default function LiveMarketPanel({ ticker }: Props) {
       'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js'
 
     script.textContent = JSON.stringify({
+      width: '100%',
+      height: 650,
       symbol: resolveSymbol(ticker),
       theme: 'dark',
-      autosize: true,
+      autosize: false,
       style: '1',
       locale: 'en',
       hide_top_toolbar: false,

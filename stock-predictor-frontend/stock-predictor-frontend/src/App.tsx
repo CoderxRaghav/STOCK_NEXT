@@ -135,6 +135,9 @@ export default function App() {
                       <p className="font-mono text-[11px] tracking-[0.15em] text-brass-400 animate-pulse">
                         READING SIGNAL…
                       </p>
+                      <p className="font-mono text-[9px] text-paper-200/30 mt-2">
+                        First load may take up to 1-2 minutes while the Render server wakes up from sleep.
+                      </p>
                     </motion.div>
                   )}
                 </AnimatePresence>
