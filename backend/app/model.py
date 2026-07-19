@@ -67,15 +67,21 @@ def train(ticker: str):
         
     return model, scaler
 
+_LOADED_MODELS = {}
+
 def predict_next(ticker: str, df: pd.DataFrame):
     model_path, scaler_path = _get_model_paths(ticker)
     
-    if not os.path.exists(model_path) or not os.path.exists(scaler_path):
-        model, scaler = train(ticker)
+    if ticker not in _LOADED_MODELS:
+        if not os.path.exists(model_path) or not os.path.exists(scaler_path):
+            model, scaler = train(ticker)
+        else:
+            model = load_model(model_path)
+            with open(scaler_path, 'rb') as f:
+                scaler = pickle.load(f)
+        _LOADED_MODELS[ticker] = (model, scaler)
     else:
-        model = load_model(model_path)
-        with open(scaler_path, 'rb') as f:
-            scaler = pickle.load(f)
+        model, scaler = _LOADED_MODELS[ticker]
             
     # Compute confidence based on recent validation error
     data = df.filter(['Close']).values
