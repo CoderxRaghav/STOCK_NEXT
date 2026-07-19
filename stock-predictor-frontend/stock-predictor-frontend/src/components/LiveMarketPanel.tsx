@@ -48,8 +48,6 @@ export default function LiveMarketPanel({ ticker }: Props) {
 
     container.innerHTML = ''
     
-    console.log("LiveMarketPanel initializing with ticker:", ticker, "resolved as:", resolveSymbol(ticker))
-    
     const scriptId = 'tradingview-tv-js'
     let script = document.getElementById(scriptId) as HTMLScriptElement
     
