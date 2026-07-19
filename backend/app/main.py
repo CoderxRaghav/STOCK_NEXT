@@ -104,6 +104,10 @@ def get_company_info(ticker: str, df: pd.DataFrame):
         "avgVolume": format_volume(avg_vol)
     }
 
+@app.get("/")
+def read_root():
+    return {"message": "Stock Predictor API is running successfully!"}
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
