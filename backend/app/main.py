@@ -79,16 +79,32 @@ def format_market_cap(mc: float, curr: str) -> str:
 def get_company_info(ticker: str, df: pd.DataFrame):
     try:
         stock = yf.Ticker(ticker)
-        info = stock.info
+        
+        # Try fast_info first (much more resilient to rate limits on cloud servers)
+        fast_mc = None
+        fast_shares = None
+        try:
+            fast_mc = stock.fast_info['marketCap']
+        except: pass
+        try:
+            fast_shares = stock.fast_info['shares']
+        except: pass
+        
+        try:
+            info = stock.info
+        except:
+            info = {}
     except:
         info = {}
+        fast_mc = None
+        fast_shares = None
         
     name = info.get("shortName") or info.get("longName") or f"{ticker} Corp"
     curr = "₹" if ticker.endswith(".NS") or ticker.endswith(".BO") else "$"
     
-    mc = info.get("marketCap") or info.get("nonDilutedMarketCap") or 0
+    mc = fast_mc or info.get("marketCap") or info.get("nonDilutedMarketCap") or 0
     if not mc or (isinstance(mc, float) and math.isnan(mc)):
-        shares = info.get("sharesOutstanding") or info.get("impliedSharesOutstanding") or 0
+        shares = fast_shares or info.get("sharesOutstanding") or info.get("impliedSharesOutstanding") or 0
         if shares and not (isinstance(shares, float) and math.isnan(shares)):
             mc = shares * float(df['Close'].iloc[-1])
     
@@ -169,19 +185,18 @@ def predict_stock(ticker: str):
         change_pct = derive_change_pct(current_price, predicted_price)
         signals = derive_signals(df)
         
-        # Internal Consistency Check: Ensure trend doesn't contradict unanimous signals
+        # Internal Consistency Check: Reconcile trend against majority-weighted signals
         if len(signals) > 0:
-            all_up = all(s["direction"] == "up" for s in signals)
-            all_down = all(s["direction"] == "down" for s in signals)
+            bull_weight = sum(s.get("weight", 0) for s in signals if s["direction"] == "up")
+            bear_weight = sum(s.get("weight", 0) for s in signals if s["direction"] == "down")
             
-            if all_up and trend == "down":
-                print(f"Consistency warning: trend is down but all signals are up for {yf_ticker}. Adjusting trend.")
+            if bull_weight > bear_weight and trend == "down":
+                print(f"Consistency warning: trend is down but signals lean bullish for {yf_ticker}. Adjusting trend.")
                 trend = "up"
                 predicted_price = current_price * 1.006
                 change_pct = derive_change_pct(current_price, predicted_price)
-                confidence = min(confidence, 60)
-            elif all_down and trend == "up":
-                print(f"Consistency warning: trend is up but all signals are down for {yf_ticker}. Adjusting trend.")
+            elif bear_weight > bull_weight and trend == "up":
+                print(f"Consistency warning: trend is up but signals lean bearish for {yf_ticker}. Adjusting trend.")
                 trend = "down"
                 predicted_price = current_price * 0.994
                 change_pct = derive_change_pct(current_price, predicted_price)
