@@ -113,9 +113,11 @@ def versions():
     try:
         import tensorflow as tf
         import keras
+        import sklearn
         return {
             "tensorflow": tf.__version__,
-            "keras": keras.__version__
+            "keras": keras.__version__,
+            "sklearn": sklearn.__version__
         }
     except Exception as e:
         return {"error": str(e)}
