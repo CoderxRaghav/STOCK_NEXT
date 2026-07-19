@@ -4,6 +4,9 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 import tensorflow as tf
+# Limit TensorFlow threading to minimize memory footprint on low-resource servers
+tf.config.threading.set_intra_op_parallelism_threads(1)
+tf.config.threading.set_inter_op_parallelism_threads(1)
 from tensorflow.keras.models import Sequential, load_model
 from tensorflow.keras.layers import LSTM, Dense
 
@@ -67,59 +70,59 @@ def train(ticker: str):
         
     return model, scaler
 
-_LOADED_MODELS = {}
-
 def predict_next(ticker: str, df: pd.DataFrame):
+    import gc
     model_path, scaler_path = _get_model_paths(ticker)
     
-    if ticker not in _LOADED_MODELS:
-        if not os.path.exists(model_path) or not os.path.exists(scaler_path):
-            model, scaler = train(ticker)
+    if not os.path.exists(model_path) or not os.path.exists(scaler_path):
+        model, scaler = train(ticker)
+    else:
+        model = load_model(model_path)
+        with open(scaler_path, 'rb') as f:
+            scaler = pickle.load(f)
+            
+    try:
+        # Compute confidence based on recent validation error
+        data = df.filter(['Close']).values
+        if len(data) > SEQ_LENGTH:
+            recent_data = data[-(SEQ_LENGTH + 10):]
+            scaled_recent = scaler.transform(recent_data)
+            
+            # Calculate recent error
+            X_val, y_val = [], []
+            for i in range(SEQ_LENGTH, len(scaled_recent)):
+                X_val.append(scaled_recent[i-SEQ_LENGTH:i, 0])
+                y_val.append(scaled_recent[i, 0])
+                
+            X_val, y_val = np.array(X_val), np.array(y_val)
+            X_val = np.reshape(X_val, (X_val.shape[0], X_val.shape[1], 1))
+            
+            preds = model.predict(X_val, verbose=0)
+            mse = np.mean(np.square(preds - y_val))
+            
+            # Heuristic: smaller MSE -> higher confidence, capped at 100
+            confidence = max(10, min(95, int(100 - (mse * 5000))))
         else:
-            model = load_model(model_path)
-            with open(scaler_path, 'rb') as f:
-                scaler = pickle.load(f)
-        _LOADED_MODELS[ticker] = (model, scaler)
-    else:
-        model, scaler = _LOADED_MODELS[ticker]
+            confidence = 50
             
-    # Compute confidence based on recent validation error
-    data = df.filter(['Close']).values
-    if len(data) > SEQ_LENGTH:
-        recent_data = data[-(SEQ_LENGTH + 10):]
-        scaled_recent = scaler.transform(recent_data)
+        # Predict next day
+        last_60_days = data[-SEQ_LENGTH:]
+        last_60_days_scaled = scaler.transform(last_60_days)
         
-        # Calculate recent error
-        X_val, y_val = [], []
-        for i in range(SEQ_LENGTH, len(scaled_recent)):
-            X_val.append(scaled_recent[i-SEQ_LENGTH:i, 0])
-            y_val.append(scaled_recent[i, 0])
-            
-        X_val, y_val = np.array(X_val), np.array(y_val)
-        X_val = np.reshape(X_val, (X_val.shape[0], X_val.shape[1], 1))
+        X_test = []
+        X_test.append(last_60_days_scaled[:, 0])
+        X_test = np.array(X_test)
+        X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
         
-        preds = model.predict(X_val, verbose=0)
-        mse = np.mean(np.square(preds - y_val))
+        pred_price = model.predict(X_test, verbose=0)
+        pred_price = scaler.inverse_transform(pred_price)
+        predicted_price = float(pred_price[0][0])
+    finally:
+        # Aggressive memory cleanup to prevent Render OOM
+        del model
+        tf.keras.backend.clear_session()
+        gc.collect()
         
-        # Heuristic: smaller MSE -> higher confidence, capped at 100
-        # E.g., MSE 0.001 -> conf ~90, MSE 0.01 -> conf ~50
-        confidence = max(10, min(95, int(100 - (mse * 5000))))
-    else:
-        confidence = 50
-        
-    # Predict next day
-    last_60_days = data[-SEQ_LENGTH:]
-    last_60_days_scaled = scaler.transform(last_60_days)
-    
-    X_test = []
-    X_test.append(last_60_days_scaled[:, 0])
-    X_test = np.array(X_test)
-    X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
-    
-    pred_price = model.predict(X_test, verbose=0)
-    pred_price = scaler.inverse_transform(pred_price)
-    predicted_price = float(pred_price[0][0])
-    
     return predicted_price, confidence
 
 def derive_trend(current: float, predicted: float) -> str:

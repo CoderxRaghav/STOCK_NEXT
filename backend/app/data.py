@@ -5,6 +5,8 @@ import numpy as np
 class DataFetchError(Exception):
     pass
 
+import requests
+
 def fetch_history(ticker: str, period: str = "1y") -> pd.DataFrame:
     """Fetch history, automatically trying .NS and .BO suffixes for Indian tickers."""
     candidates = [ticker]
@@ -13,10 +15,15 @@ def fetch_history(ticker: str, period: str = "1y") -> pd.DataFrame:
         candidates.append(f"{ticker}.NS")
         candidates.append(f"{ticker}.BO")
 
+    session = requests.Session()
+    session.headers.update({
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+    })
+
     last_error = None
     for t in candidates:
         try:
-            stock = yf.Ticker(t)
+            stock = yf.Ticker(t, session=session)
             df = stock.history(period=period)
             if not df.empty:
                 return df
