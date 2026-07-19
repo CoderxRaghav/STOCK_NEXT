@@ -46,42 +46,48 @@ export default function LiveMarketPanel({ ticker }: Props) {
     const container = containerRef.current
     if (!container) return
 
-    // Clear previous embed
     container.innerHTML = ''
+    
+    console.log("LiveMarketPanel initializing with ticker:", ticker, "resolved as:", resolveSymbol(ticker))
+    
+    const scriptId = 'tradingview-tv-js'
+    let script = document.getElementById(scriptId) as HTMLScriptElement
+    
+    const initWidget = () => {
+      if (typeof (window as any).TradingView === 'undefined') return
+      
+      new (window as any).TradingView.widget({
+        autosize: false,
+        width: '100%',
+        height: 650,
+        symbol: resolveSymbol(ticker),
+        interval: 'D',
+        timezone: 'Etc/UTC',
+        theme: 'dark',
+        style: '1',
+        locale: 'en',
+        hide_top_toolbar: false,
+        allow_symbol_change: false,
+        calendar: false,
+        backgroundColor: 'rgba(5, 7, 10, 0)',
+        gridColor: 'rgba(237, 230, 214, 0.06)',
+        support_host: 'https://www.tradingview.com',
+        container_id: container.id
+      })
+    }
 
-    // TradingView standard embed pattern: a wrapper div + a script tag
-    // whose text content is the JSON config object.
-    const widgetWrapper = document.createElement('div')
-    widgetWrapper.className = 'tradingview-widget-container__widget'
-    widgetWrapper.style.height = '100%'
-    widgetWrapper.style.width = '100%'
+    if (!script) {
+      script = document.createElement('script')
+      script.id = scriptId
+      script.type = 'text/javascript'
+      script.async = true
+      script.src = 'https://s3.tradingview.com/tv.js'
+      script.onload = initWidget
+      document.body.appendChild(script)
+    } else {
+      initWidget()
+    }
 
-    const script = document.createElement('script')
-    script.type = 'text/javascript'
-    script.async = true
-    script.src =
-      'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js'
-
-    script.textContent = JSON.stringify({
-      width: '100%',
-      height: 650,
-      symbol: resolveSymbol(ticker),
-      theme: 'dark',
-      autosize: false,
-      style: '1',
-      locale: 'en',
-      hide_top_toolbar: false,
-      allow_symbol_change: false,
-      calendar: false,
-      backgroundColor: 'rgba(5, 7, 10, 0)',
-      gridColor: 'rgba(237, 230, 214, 0.06)',
-      support_host: 'https://www.tradingview.com',
-    })
-
-    container.appendChild(widgetWrapper)
-    container.appendChild(script)
-
-    // Cleanup on unmount / ticker change
     return () => {
       container.innerHTML = ''
     }
@@ -109,6 +115,7 @@ export default function LiveMarketPanel({ ticker }: Props) {
 
       {/* TradingView widget container */}
       <div
+        id={`tv_chart_${ticker}`}
         ref={containerRef}
         className="tradingview-widget-container rounded-xl overflow-hidden min-h-[650px]"
         style={{ height: 650 }}

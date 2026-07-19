@@ -64,14 +64,14 @@ def format_volume(vol: float) -> str:
     return str(int(vol))
 
 def format_market_cap(mc: float, curr: str) -> str:
-    if math.isnan(mc) or mc == 0:
+    if not isinstance(mc, (int, float)) or math.isnan(mc) or mc == 0:
         return "N/A"
-    if curr == "₹" and mc >= 1e7:
-        return f"{curr}{mc/1e7:.2f} Cr"
     if mc >= 1e12:
         return f"{curr}{mc/1e12:.1f}T"
     elif mc >= 1e9:
         return f"{curr}{mc/1e9:.1f}B"
+    elif curr == "₹" and mc >= 1e7:
+        return f"{curr}{mc/1e7:.2f} Cr"
     elif mc >= 1e6:
         return f"{curr}{mc/1e6:.1f}M"
     return f"{curr}{mc:.0f}"
@@ -86,11 +86,15 @@ def get_company_info(ticker: str, df: pd.DataFrame):
     name = info.get("shortName") or info.get("longName") or f"{ticker} Corp"
     curr = "₹" if ticker.endswith(".NS") or ticker.endswith(".BO") else "$"
     
-    mc = info.get("marketCap", 0)
-    if not mc or math.isnan(mc):
-        shares = info.get("sharesOutstanding", 0)
-        if shares and not math.isnan(shares):
+    mc = info.get("marketCap") or info.get("nonDilutedMarketCap") or 0
+    if not mc or (isinstance(mc, float) and math.isnan(mc)):
+        shares = info.get("sharesOutstanding") or info.get("impliedSharesOutstanding") or 0
+        if shares and not (isinstance(shares, float) and math.isnan(shares)):
             mc = shares * float(df['Close'].iloc[-1])
+    
+    # If all above fail, see if we can use enterprise value as a rough fallback
+    if not mc or (isinstance(mc, float) and math.isnan(mc)):
+        mc = info.get("enterpriseValue") or 0
             
     pe = info.get("trailingPE", 0.0)
     high52 = info.get("fiftyTwoWeekHigh", 0.0)
