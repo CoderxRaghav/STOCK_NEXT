@@ -152,7 +152,7 @@ export default function App() {
                 transition={{ duration: 0.4, ease: 'easeOut' }}
               >
                 {currentTicker ? (
-                  <LiveMarketPanel ticker={currentTicker} />
+                  <LiveMarketPanel key={currentTicker} ticker={currentTicker} />
                 ) : (
                   <div className="glass rounded-2xl px-6 py-16 text-center">
                     <p className="font-mono text-[11px] tracking-[0.15em] text-paper-200/30">

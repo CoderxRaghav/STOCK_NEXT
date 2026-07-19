@@ -87,6 +87,11 @@ def get_company_info(ticker: str, df: pd.DataFrame):
     curr = "₹" if ticker.endswith(".NS") or ticker.endswith(".BO") else "$"
     
     mc = info.get("marketCap", 0)
+    if not mc or math.isnan(mc):
+        shares = info.get("sharesOutstanding", 0)
+        if shares and not math.isnan(shares):
+            mc = shares * float(df['Close'].iloc[-1])
+            
     pe = info.get("trailingPE", 0.0)
     high52 = info.get("fiftyTwoWeekHigh", 0.0)
     low52 = info.get("fiftyTwoWeekLow", 0.0)
@@ -159,6 +164,24 @@ def predict_stock(ticker: str):
         trend = derive_trend(current_price, predicted_price)
         change_pct = derive_change_pct(current_price, predicted_price)
         signals = derive_signals(df)
+        
+        # Internal Consistency Check: Ensure trend doesn't contradict unanimous signals
+        if len(signals) > 0:
+            all_up = all(s["direction"] == "up" for s in signals)
+            all_down = all(s["direction"] == "down" for s in signals)
+            
+            if all_up and trend == "down":
+                print(f"Consistency warning: trend is down but all signals are up for {yf_ticker}. Adjusting trend.")
+                trend = "up"
+                predicted_price = current_price * 1.006
+                change_pct = derive_change_pct(current_price, predicted_price)
+                confidence = min(confidence, 60)
+            elif all_down and trend == "up":
+                print(f"Consistency warning: trend is up but all signals are down for {yf_ticker}. Adjusting trend.")
+                trend = "down"
+                predicted_price = current_price * 0.994
+                change_pct = derive_change_pct(current_price, predicted_price)
+                confidence = min(confidence, 60)
         
         hist_df = df.tail(90).copy()
         history_points = []
