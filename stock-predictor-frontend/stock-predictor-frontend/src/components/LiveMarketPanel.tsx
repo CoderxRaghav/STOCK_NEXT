@@ -108,8 +108,8 @@ export default function LiveMarketPanel({ ticker }: Props) {
       {/* TradingView widget container */}
       <div
         ref={containerRef}
-        className="tradingview-widget-container rounded-xl overflow-hidden min-h-[500px]"
-        style={{ height: 500 }}
+        className="tradingview-widget-container rounded-xl overflow-hidden min-h-[650px]"
+        style={{ height: 650 }}
       />
     </motion.div>
   )
