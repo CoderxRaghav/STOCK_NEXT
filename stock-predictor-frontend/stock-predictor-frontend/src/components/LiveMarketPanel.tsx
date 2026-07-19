@@ -8,17 +8,17 @@ import { motion } from 'framer-motion'
  * fallback given the app's primary focus on Indian markets.
  */
 const TICKER_TO_TV_SYMBOL: Record<string, string> = {
-  // Indian / NSE
-  TCS: 'NSE:TCS',
-  INFY: 'NSE:INFY',
-  RELIANCE: 'NSE:RELIANCE',
-  HDFCBANK: 'NSE:HDFCBANK',
-  SBIN: 'NSE:SBIN',
-  ICICIBANK: 'NSE:ICICIBANK',
-  BAJFINANCE: 'NSE:BAJFINANCE',
-  ZOMATO: 'NSE:ZOMATO',
-  PAYTM: 'NSE:PAYTM',
-  GROWW: 'NSE:GROWW',
+  // Indian / BSE (BSE is used instead of NSE to bypass TradingView free-tier data restrictions)
+  TCS: 'BSE:TCS',
+  INFY: 'BSE:INFY',
+  RELIANCE: 'BSE:RELIANCE',
+  HDFCBANK: 'BSE:HDFCBANK',
+  SBIN: 'BSE:SBIN',
+  ICICIBANK: 'BSE:ICICIBANK',
+  BAJFINANCE: 'BSE:BAJFINANCE',
+  ZOMATO: 'BSE:ZOMATO',
+  PAYTM: 'BSE:PAYTM',
+  GROWW: 'BSE:GROWW',
 
   // US / NASDAQ
   AAPL: 'NASDAQ:AAPL',
@@ -30,9 +30,9 @@ const TICKER_TO_TV_SYMBOL: Record<string, string> = {
   NVDA: 'NASDAQ:NVDA',
 }
 
-function resolveSymbol(ticker: string): string {
+function resolveSymbol(ticker: string): string | null {
   const upper = ticker.toUpperCase()
-  return TICKER_TO_TV_SYMBOL[upper] ?? `NSE:${upper}`
+  return TICKER_TO_TV_SYMBOL[upper] || null
 }
 
 interface Props {
@@ -41,8 +41,11 @@ interface Props {
 
 export default function LiveMarketPanel({ ticker }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
+  const symbol = resolveSymbol(ticker)
 
   useEffect(() => {
+    if (!symbol) return
+
     const container = containerRef.current
     if (!container) return
 
@@ -58,7 +61,7 @@ export default function LiveMarketPanel({ ticker }: Props) {
         autosize: false,
         width: '100%',
         height: 650,
-        symbol: resolveSymbol(ticker),
+        symbol: symbol,
         interval: 'D',
         timezone: 'Etc/UTC',
         theme: 'dark',
@@ -111,13 +114,21 @@ export default function LiveMarketPanel({ ticker }: Props) {
         </span>
       </div>
 
-      {/* TradingView widget container */}
-      <div
-        id={`tv_chart_${ticker}`}
-        ref={containerRef}
-        className="tradingview-widget-container rounded-xl overflow-hidden min-h-[650px]"
-        style={{ height: 650 }}
-      />
+      {/* TradingView widget container or Error State */}
+      {symbol ? (
+        <div
+          id={`tv_chart_${ticker}`}
+          ref={containerRef}
+          className="tradingview-widget-container rounded-xl overflow-hidden min-h-[650px]"
+          style={{ height: 650 }}
+        />
+      ) : (
+        <div className="flex flex-col items-center justify-center min-h-[650px] rounded-xl border border-paper-200/10 bg-paper-200/5">
+          <p className="font-mono text-[12px] tracking-wide text-paper-200/50">
+            Live chart unavailable for this ticker right now.
+          </p>
+        </div>
+      )}
     </motion.div>
   )
 }
