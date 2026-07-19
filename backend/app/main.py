@@ -4,13 +4,17 @@ from pydantic import BaseModel
 from typing import List, Optional
 import math
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timedelta
 import yfinance as yf
 
 from app.data import fetch_history, compute_indicators, DataFetchError
 from app.model import predict_next, derive_trend, derive_change_pct, derive_signals
 
 app = FastAPI()
+
+# In-memory prediction cache to eliminate latency for subsequent requests
+PREDICTION_CACHE = {}
+CACHE_EXPIRATION_HOURS = 6
 
 app.add_middleware(
     CORSMiddleware,
@@ -129,6 +133,14 @@ def health():
 @app.get("/api/predict/{ticker}", response_model=PredictResponse)
 def predict_stock(ticker: str):
     original_ticker = ticker.strip().upper()
+    
+    # Check cache first
+    now = datetime.utcnow()
+    if original_ticker in PREDICTION_CACHE:
+        cache_item = PREDICTION_CACHE[original_ticker]
+        if now < cache_item["expires_at"]:
+            return cache_item["data"]
+            
     yf_ticker = original_ticker
     indian_tickers = {
         "TCS", "INFY", "RELIANCE", "HDFCBANK", "NIFTY 50",
@@ -173,7 +185,7 @@ def predict_stock(ticker: str):
         
         info = get_company_info(yf_ticker, df)
         
-        return PredictResponse(
+        response = PredictResponse(
             ticker=original_ticker,
             companyName=info["name"],
             currentPrice=round(current_price, 2),
@@ -190,8 +202,16 @@ def predict_stock(ticker: str):
                 weekLow52=round(info["weekLow52"], 2),
                 avgVolume=info["avgVolume"]
             ),
-            lastUpdated=datetime.utcnow().isoformat() + "Z"
+            lastUpdated=now.isoformat() + "Z"
         )
+        
+        # Save to cache
+        PREDICTION_CACHE[original_ticker] = {
+            "expires_at": now + timedelta(hours=CACHE_EXPIRATION_HOURS),
+            "data": response
+        }
+        
+        return response
         
     except DataFetchError as e:
         raise HTTPException(status_code=404, detail=str(e))
