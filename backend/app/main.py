@@ -108,6 +108,18 @@ def get_company_info(ticker: str, df: pd.DataFrame):
 def read_root():
     return {"message": "Stock Predictor API is running successfully!"}
 
+@app.get("/versions")
+def versions():
+    try:
+        import tensorflow as tf
+        import keras
+        return {
+            "tensorflow": tf.__version__,
+            "keras": keras.__version__
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
