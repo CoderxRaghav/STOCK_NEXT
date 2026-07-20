@@ -91,16 +91,16 @@ export default function Preloader() {
         <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brass-400 to-brass-600 flex items-center justify-center font-display font-semibold text-ink-950 text-3xl mb-8">
           S
         </div>
-        <div className="flex flex-col gap-2 mt-4 bg-ink-950/40 p-6 rounded-3xl w-full max-w-sm">
-          <div className="flex items-start gap-3 font-mono text-sm text-paper-200/50">
-            <span className="text-sage-400 font-semibold tracking-widest w-20 text-right shrink-0">LIVE</span>
-            <span className="text-ink-700 shrink-0">|</span>
-            <span className="text-left leading-tight">real-time market prices while the exchange is open</span>
+        <div className="flex flex-col gap-6 mt-8 bg-ink-950/40 p-8 md:p-12 rounded-3xl w-full max-w-4xl text-center md:text-left">
+          <div className="flex flex-col md:flex-row items-center md:items-start gap-3 md:gap-6 font-mono text-xl md:text-2xl text-paper-200/50">
+            <span className="text-sage-400 font-semibold tracking-widest md:w-40 md:text-right shrink-0">LIVE</span>
+            <span className="text-ink-700 shrink-0 hidden md:inline">|</span>
+            <span className="leading-snug">real-time market prices while the exchange is open</span>
           </div>
-          <div className="flex items-start gap-3 font-mono text-sm text-paper-200/50">
-            <span className="text-brass-400 font-semibold tracking-widest w-20 text-right shrink-0">PREDICT</span>
-            <span className="text-ink-700 shrink-0">|</span>
-            <span className="text-left leading-tight">next session's AI-forecasted trend after market close</span>
+          <div className="flex flex-col md:flex-row items-center md:items-start gap-3 md:gap-6 font-mono text-xl md:text-2xl text-paper-200/50">
+            <span className="text-brass-400 font-semibold tracking-widest md:w-40 md:text-right shrink-0">PREDICT</span>
+            <span className="text-ink-700 shrink-0 hidden md:inline">|</span>
+            <span className="leading-snug">next session's AI-forecasted trend after market close</span>
           </div>
         </div>
       </motion.div>
@@ -229,17 +229,17 @@ export default function Preloader() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.4, delay: TEXT_FADE_DELAY + 0.15 }}
-              className="flex flex-col gap-2 mt-4 w-full max-w-sm"
+              className="flex flex-col gap-6 mt-8 w-full max-w-4xl px-6 text-center md:text-left"
             >
-              <div className="flex items-start gap-3 font-mono text-sm text-paper-200/50">
-                <span className="text-sage-400 font-semibold tracking-widest w-20 text-right shrink-0">LIVE</span>
-                <span className="text-ink-700 shrink-0">|</span>
-                <span className="text-left leading-tight">real-time market prices while the exchange is open</span>
+              <div className="flex flex-col md:flex-row items-center md:items-start gap-3 md:gap-6 font-mono text-xl md:text-2xl text-paper-200/50">
+                <span className="text-sage-400 font-semibold tracking-widest md:w-40 md:text-right shrink-0">LIVE</span>
+                <span className="text-ink-700 shrink-0 hidden md:inline">|</span>
+                <span className="leading-snug">real-time market prices while the exchange is open</span>
               </div>
-              <div className="flex items-start gap-3 font-mono text-sm text-paper-200/50">
-                <span className="text-brass-400 font-semibold tracking-widest w-20 text-right shrink-0">PREDICT</span>
-                <span className="text-ink-700 shrink-0">|</span>
-                <span className="text-left leading-tight">next session's AI-forecasted trend after market close</span>
+              <div className="flex flex-col md:flex-row items-center md:items-start gap-3 md:gap-6 font-mono text-xl md:text-2xl text-paper-200/50">
+                <span className="text-brass-400 font-semibold tracking-widest md:w-40 md:text-right shrink-0">PREDICT</span>
+                <span className="text-ink-700 shrink-0 hidden md:inline">|</span>
+                <span className="leading-snug">next session's AI-forecasted trend after market close</span>
               </div>
             </motion.div>
           </div>

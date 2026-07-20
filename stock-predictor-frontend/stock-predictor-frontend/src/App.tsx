@@ -27,7 +27,7 @@ export default function App() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowPreloader(false)
-    }, 2200)
+    }, 3800)
     return () => clearTimeout(timer)
   }, [])
 
