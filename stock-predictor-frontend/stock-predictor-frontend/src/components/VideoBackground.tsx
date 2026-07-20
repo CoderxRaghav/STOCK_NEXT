@@ -17,21 +17,10 @@ export default function VideoBackground() {
     const video = videoRef.current
     if (!video) return
 
-    if (reducedMotion) {
-      // Load just the first frame, then pause
-      const pauseOnReady = () => {
-        video.pause()
-        video.removeEventListener('loadeddata', pauseOnReady)
-      }
-      video.addEventListener('loadeddata', pauseOnReady)
-      // If already loaded, pause immediately
-      if (video.readyState >= 2) video.pause()
-    } else {
-      video.play().catch(() => {
-        // Autoplay blocked — fail silently, overlay still covers
-      })
-    }
-  }, [reducedMotion])
+    video.play().catch(() => {
+      // Autoplay blocked — fail silently, overlay still covers
+    })
+  }, [])
 
   return (
     <div className="fixed inset-0 z-[-1]" aria-hidden="true">

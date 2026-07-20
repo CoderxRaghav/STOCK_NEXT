@@ -91,14 +91,14 @@ export default function Preloader() {
         <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brass-400 to-brass-600 flex items-center justify-center font-display font-semibold text-ink-950 text-3xl mb-8">
           S
         </div>
-        <div className="flex flex-col gap-1.5 mt-2 bg-ink-950/40 p-6 rounded-3xl">
-          <div className="flex items-center gap-3 font-mono text-[10px] text-paper-200/50">
-            <span className="text-sage-400 font-bold tracking-widest w-16 text-right">LIVE</span>
+        <div className="flex flex-col gap-2 mt-4 bg-ink-950/40 p-6 rounded-3xl">
+          <div className="flex items-center gap-3 font-mono text-sm text-paper-200/50">
+            <span className="text-sage-400 font-bold tracking-widest w-20 text-right">LIVE</span>
             <span className="text-ink-700">|</span>
             <span>real-time market prices while the exchange is open</span>
           </div>
-          <div className="flex items-center gap-3 font-mono text-[10px] text-paper-200/50">
-            <span className="text-brass-400 font-bold tracking-widest w-16 text-right">PREDICT</span>
+          <div className="flex items-center gap-3 font-mono text-sm text-paper-200/50">
+            <span className="text-brass-400 font-bold tracking-widest w-20 text-right">PREDICT</span>
             <span className="text-ink-700">|</span>
             <span>next session's AI-forecasted trend after market close</span>
           </div>
@@ -214,13 +214,13 @@ export default function Preloader() {
           className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"
         >
           {/* Logo / Wordmark */}
-          <div className="flex flex-col items-center gap-4 bg-ink-950/40 p-6 rounded-3xl backdrop-blur-sm">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brass-400 to-brass-600 flex items-center justify-center font-display font-semibold text-ink-950 text-lg shadow-[0_0_20px_rgba(201,162,39,0.3)]">
+          <div className="flex flex-col items-center gap-4 bg-ink-950/40 p-8 rounded-3xl backdrop-blur-sm">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brass-400 to-brass-600 flex items-center justify-center font-display font-semibold text-ink-950 text-3xl shadow-[0_0_20px_rgba(201,162,39,0.3)]">
                 S
               </div>
               <div>
-                <h1 className="font-display text-2xl text-paper-100 leading-none">Signal</h1>
+                <h1 className="font-display text-4xl text-paper-100 leading-none">Signal</h1>
               </div>
             </div>
 
@@ -229,15 +229,15 @@ export default function Preloader() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.4, delay: TEXT_FADE_DELAY + 0.15 }}
-              className="flex flex-col gap-1.5 mt-2"
+              className="flex flex-col gap-2 mt-4"
             >
-              <div className="flex items-center gap-3 font-mono text-[10px] text-paper-200/50">
-                <span className="text-sage-400 font-bold tracking-widest w-16 text-right">LIVE</span>
+              <div className="flex items-center gap-3 font-mono text-sm text-paper-200/50">
+                <span className="text-sage-400 font-bold tracking-widest w-20 text-right">LIVE</span>
                 <span className="text-ink-700">|</span>
                 <span>real-time market prices while the exchange is open</span>
               </div>
-              <div className="flex items-center gap-3 font-mono text-[10px] text-paper-200/50">
-                <span className="text-brass-400 font-bold tracking-widest w-16 text-right">PREDICT</span>
+              <div className="flex items-center gap-3 font-mono text-sm text-paper-200/50">
+                <span className="text-brass-400 font-bold tracking-widest w-20 text-right">PREDICT</span>
                 <span className="text-ink-700">|</span>
                 <span>next session's AI-forecasted trend after market close</span>
               </div>
