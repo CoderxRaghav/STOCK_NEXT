@@ -34,7 +34,7 @@ export default function VideoBackground() {
         className="absolute inset-0 w-full h-full object-cover"
       />
       {/* Dark overlay for legibility */}
-      <div className="absolute inset-0 bg-[#05070A]/[0.78]" />
+      <div className="absolute inset-0 bg-[#05070A] opacity-80" />
     </div>
   )
 }
