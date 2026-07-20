@@ -10,9 +10,64 @@
       href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
+    <style>
+      body, html {
+        margin: 0;
+        padding: 0;
+        background-color: #0B0F14;
+        height: 100%;
+      }
+      #initial-loader {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background-color: #0B0F14;
+        z-index: 9999;
+        font-family: 'Fraunces', serif;
+      }
+      .logo-box {
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 0.75rem;
+        background: linear-gradient(to bottom right, #DDBB4E, #A6841D);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #0B0F14;
+        font-size: 1.125rem;
+        font-weight: 600;
+        box-shadow: 0 0 20px rgba(201,162,39,0.3);
+        margin-bottom: 1rem;
+        animation: pulse-glow 2s infinite ease-in-out;
+      }
+      .logo-text {
+        color: #EDE6D6;
+        font-size: 1.5rem;
+        margin: 0;
+        font-weight: 400;
+        line-height: 1;
+        animation: fade-in 1s ease-out;
+      }
+      @keyframes pulse-glow {
+        0%, 100% { box-shadow: 0 0 20px rgba(201,162,39,0.3); transform: scale(1); }
+        50% { box-shadow: 0 0 35px rgba(201,162,39,0.6); transform: scale(1.05); }
+      }
+      @keyframes fade-in {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div id="initial-loader">
+        <div class="logo-box">S</div>
+        <h1 class="logo-text">Signal</h1>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

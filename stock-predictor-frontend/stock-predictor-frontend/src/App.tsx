@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import VideoBackground from './components/VideoBackground'
 import AmbientBackground from './components/AmbientBackground'
@@ -14,6 +14,7 @@ import ModeCaption from './components/ModeCaption'
 import { fetchPrediction } from './services/api'
 import { PredictionResult } from './types'
 import { getDefaultMode } from './utils/marketHours'
+import Preloader from './components/Preloader'
 
 export default function App() {
   const [data, setData] = useState<PredictionResult | null>(null)
@@ -21,6 +22,14 @@ export default function App() {
   const [error, setError] = useState<string | null>(null)
   const [mode, setMode] = useState<'live' | 'predict'>(getDefaultMode)
   const [currentTicker, setCurrentTicker] = useState<string | null>(null)
+  const [showPreloader, setShowPreloader] = useState(true)
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowPreloader(false)
+    }, 2200)
+    return () => clearTimeout(timer)
+  }, [])
 
   async function handleSearch(ticker: string) {
     setCurrentTicker(ticker)
@@ -173,6 +182,9 @@ export default function App() {
           </div>
         </footer>
       </div>
+      <AnimatePresence>
+        {showPreloader && <Preloader key="preloader" />}
+      </AnimatePresence>
     </div>
   )
 }
